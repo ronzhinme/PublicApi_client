@@ -3,9 +3,12 @@ cmake_minimum_required(VERSION 3.16)
 project(PublicApi_client VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/category)
 
 qt_add_executable(appPublicApi_client
     main.cpp
@@ -14,7 +17,8 @@ qt_add_executable(appPublicApi_client
 qt_add_qml_module(appPublicApi_client
     URI PublicApi_client
     VERSION 1.0
-    QML_FILES main.qml 
+    QML_FILES
+        main.qml
 )
 
 set_target_properties(appPublicApi_client PROPERTIES
@@ -26,7 +30,8 @@ set_target_properties(appPublicApi_client PROPERTIES
 )
 
 target_link_libraries(appPublicApi_client
-    PRIVATE Qt6::Quick)
+    PRIVATE Qt6::Quick
+    category_model)
 
 install(TARGETS appPublicApi_client
     BUNDLE DESTINATION .
