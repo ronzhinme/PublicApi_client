@@ -4,7 +4,7 @@
 CategoryTree::CategoryTree(QObject *parent)
     : DataModels::TreeModel(parent)
 {
-    setHeaderNames({tr("Category")});
+    setHeaderNames({tr("Category"), tr("Extra Column")});
     setRoleNames(CategoryNode::roles());
     setFlags({Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable});
 

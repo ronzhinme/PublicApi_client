@@ -17,7 +17,7 @@ public:
 
     void setFlags(QVector<Qt::ItemFlags> &&flags);
     void setRoleNames(const QHash<int, QByteArray> &roles);
-    QStringList getHeaderNames() const;
+    Q_INVOKABLE QStringList getHeaderNames() const;
     void setHeaderNames(const QStringList &val);
     // QAbstractItemModel interface
 public:
@@ -40,7 +40,7 @@ protected:
     bool deleteNode(TreeNode *node, TreeNode *parent);
 
 private:
-    static constexpr int columnCount_{1};
+    int columnCount_{1};
     QScopedPointer<TreeNode> root_;
     QHash<int, QByteArray> roles_;
     QVector<Qt::ItemFlags> flags_;

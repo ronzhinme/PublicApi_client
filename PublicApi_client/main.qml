@@ -20,7 +20,7 @@ Window {
 
         delegate: Item
         {
-            implicitHeight: categoryName.height
+            implicitHeight: categoryItem.height
             implicitWidth: tree.width
 
             TapHandler {
@@ -30,17 +30,43 @@ Window {
             }
 
             Text {
+                id: indicator
                 visible: !isEmpty
-                anchors.verticalCenter: categoryName.verticalCenter
+                anchors.verticalCenter: rowItem.verticalCenter
                 text: "▸"
                 font.pointSize: 14
                 rotation: tree.isExpanded(index) ? 90 : 0
             }
 
-            Text {
-                id: categoryName
-                x: 20
-                text: name
+            Row {
+                id: rowItem
+                height: image.height
+                anchors.left: indicator.right
+                anchors.leftMargin: 5
+                spacing: 5
+
+                Row {
+                    id: categoryItem
+                    spacing: 5
+                    Image {
+                        id: image
+                        source: icon
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        id: categoryName
+                        text: name
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                Row {
+                    id: extraItem
+                    Text {
+                        text: extra
+                    }
+                }
             }
         }
     }

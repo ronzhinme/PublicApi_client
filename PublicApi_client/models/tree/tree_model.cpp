@@ -39,6 +39,7 @@ QStringList TreeModel::getHeaderNames() const
 void TreeModel::setHeaderNames(const QStringList &val)
 {
     headerNames_ = val;
+    columnCount_ = headerNames_.count();
 }
 
 QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const
