@@ -27,6 +27,12 @@ private:
     TreeNode *root_;
     QList<TreeNode*> children_;
     uint id_;
+protected:
+    void set(const QString &propertyName, const QVariant &val);
+    QVariant get(const QString &propertyName) const;
+signals:
+    void sigPropertyChanged(const QString &property, const QVariant &val);
+    void sigChildrenCountChanged();
 };
 
 }

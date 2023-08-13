@@ -16,12 +16,9 @@ public:
     ~TreeModel();
 
     void setFlags(QVector<Qt::ItemFlags> &&flags);
-    TreeNode* getNode(const QModelIndex &index) const;
-    void setRoles(const QVariantList &roles);
-    QVariantList getRoles() const;
+    void setRoleNames(const QHash<int, QByteArray> &roles);
     QStringList getHeaderNames() const;
     void setHeaderNames(const QStringList &val);
-
     // QAbstractItemModel interface
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const override;
@@ -31,6 +28,10 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const override;
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+    virtual QHash<int, QByteArray> roleNames() const override;
+
+public:
+    Q_INVOKABLE DataModels::TreeNode* getNode(const QModelIndex &index) const;
 
 protected:
     QModelIndex getIndexByNode_(TreeNode *node) const;
@@ -41,7 +42,7 @@ protected:
 private:
     static constexpr int columnCount_{1};
     QScopedPointer<TreeNode> root_;
-    QVariantList roles_;
+    QHash<int, QByteArray> roles_;
     QVector<Qt::ItemFlags> flags_;
     QStringList headerNames_;
 signals:

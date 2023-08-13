@@ -17,10 +17,31 @@ Window {
         id: tree
         anchors.fill: parent
         model: treeModel
-        delegate: Text {
-            width: 100
-            height: 20
-                text: display + " index: " + index
+
+        delegate: Item
+        {
+            implicitHeight: categoryName.height
+            implicitWidth: tree.width
+
+            TapHandler {
+                onTapped: {
+                    tree.toggleExpanded(index)
+                }
+            }
+
+            Text {
+                visible: !isEmpty
+                anchors.verticalCenter: categoryName.verticalCenter
+                text: "▸"
+                font.pointSize: 14
+                rotation: tree.isExpanded(index) ? 90 : 0
+            }
+
+            Text {
+                id: categoryName
+                x: 20
+                text: name
+            }
         }
     }
 }

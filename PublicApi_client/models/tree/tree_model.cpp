@@ -1,5 +1,4 @@
 #include "tree_model.h"
-#include "../models/role_to_string.h"
 
 namespace DataModels
 {
@@ -27,17 +26,11 @@ TreeNode *TreeModel::getNode(const QModelIndex &index) const
             : root_.get();
 }
 
-void TreeModel::setRoles(const QVariantList &roles)
+void TreeModel::setRoleNames(const QHash<int, QByteArray> &roles)
 {
     roles_.clear();
-    roles_.append(roles);
+    roles_ = roles;
 }
-
-QVariantList TreeModel::getRoles() const
-{
-    return roles_;
-}
-
 QStringList TreeModel::getHeaderNames() const
 {
     return headerNames_;
@@ -104,13 +97,12 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
     }
 
     const auto node = getNode(index);
-    const auto propertyName = RoleToString::toString(role, roles_, "");
-    return node->property(propertyName.toStdString().c_str());
+    return node->property(roles_[role]);
 }
 
 bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if(!index.isValid() || role != Qt::EditRole || role != Qt::CheckStateRole)
+    if(!hasIndex(index.row(), index.column(), index.parent()) || role != Qt::EditRole || role != Qt::CheckStateRole)
     {
         return false;
     }
@@ -121,13 +113,9 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
         return false;
     }
 
-    const auto propertyName = RoleToString::toString(role, roles_, "");
-    if(propertyName.isEmpty() || !node->dynamicPropertyNames().contains(propertyName))
-    {
-        return false;
-    }
-
-    node->setProperty(propertyName.toStdString().c_str(), value);
+    auto iter = roles_.begin();
+    std::advance(iter, index.column());
+    node->setProperty(iter.value(), value);
     emit dataChanged(index, index, {role});
     return true;
 }
@@ -140,6 +128,11 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
     }
 
     return flags_.at(index.column());
+}
+
+QHash<int, QByteArray> TreeModel::roleNames() const
+{
+    return roles_;
 }
 
 QModelIndex TreeModel::getIndexByNode_(TreeNode *node) const

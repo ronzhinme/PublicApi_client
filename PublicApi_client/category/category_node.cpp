@@ -1,48 +1,50 @@
 #include "category_node.h"
-#include "../models/role_to_string.h"
-
-QVariantList CategoryRoles::roles()
-{
-    static const auto roles = QVariantList{"name"};
-    return roles;
-}
-
-static QString roleToString(CategoryRoles::Role role)
-{
-    static const auto undefined = "undefined";
-    if(role == CategoryRoles::Role::Undefined)
-    {
-        return undefined;
-    }
-
-    return DataModels::RoleToString::toString(role - (Qt::UserRole + 1), CategoryRoles::roles(), undefined);
-}
-
-static CategoryRoles::Role stringToRole(const QString &name)
-{
-    const auto index = DataModels::RoleToString::toRoleIndex(name, CategoryRoles::roles(), CategoryRoles::Role::Undefined);
-    return static_cast<CategoryRoles::Role>(index != CategoryRoles::Role::Undefined
-                ? index + (Qt::UserRole + 1)
-                : index);
-}
 
 CategoryNode::CategoryNode(QObject *parent)
     : DataModels::TreeNode(parent)
 {
+    connect(this, &DataModels::TreeNode::sigChildrenCountChanged, this, &CategoryNode::onChildrenCountChanged_);
+
+    setName("");
+    onChildrenCountChanged_();
 }
 
 CategoryNode::CategoryNode(const QString &name, QObject *parent)
     : DataModels::TreeNode(parent)
 {
+    connect(this, &DataModels::TreeNode::sigChildrenCountChanged, this, &CategoryNode::onChildrenCountChanged_);
+
     setName(name);
+    onChildrenCountChanged_();
+}
+
+const QHash<int, QByteArray> CategoryNode::roles()
+{
+    static const QHash<int, QByteArray> hash
+    {
+        {CategoryNode::Role::Name, "name"},
+        {CategoryNode::Role::IsEmpty, "isEmpty"}
+    };
+
+    return hash;
 }
 
 QString CategoryNode::name() const
 {
-    return property(roleToString(CategoryRoles::Name).toStdString().c_str()).toString();
+    return get(roles().value(Role::Name)).toString();
 }
 
 void CategoryNode::setName(const QString &val)
 {
-    setProperty(roleToString(CategoryRoles::Name).toStdString().c_str(), val);
+    set(roles().value(Role::Name), val);
+}
+
+bool CategoryNode::isEmpty() const
+{
+    return get(roles().value(Role::IsEmpty)).toBool();
+}
+
+void CategoryNode::onChildrenCountChanged_()
+{
+    set(roles().value(Role::IsEmpty), getChildren().isEmpty());
 }

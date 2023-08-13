@@ -1,4 +1,5 @@
 #include "tree_node.h"
+#include "qvariant.h"
 
 #include <QUuid>
 
@@ -46,6 +47,7 @@ bool TreeNode::insert(TreeNode* node, int pos)
 
     node->setRoot(this);
     children_.insert(pos, node);
+    emit sigChildrenCountChanged();
     return true;
 }
 
@@ -56,13 +58,16 @@ bool TreeNode::remove(TreeNode* node)
         return false;
     }
 
-    return children_.removeOne(node);
+    const auto isOk = children_.removeOne(node);
+    emit sigChildrenCountChanged();
+    return isOk;
 }
 
 void TreeNode::clear()
 {
     qDeleteAll(children_);
     children_.clear();
+    emit sigChildrenCountChanged();
 }
 
 QList<TreeNode*> TreeNode::getChildren() const
@@ -91,6 +96,17 @@ int TreeNode::pos(bool fromRoot) const
 uint TreeNode::getId() const
 {
     return id_;
+}
+
+void TreeNode::set(const QString &propertyName, const QVariant &val)
+{
+    setProperty(propertyName.toStdString().c_str(), val);
+    emit sigPropertyChanged(propertyName, val);
+}
+
+QVariant TreeNode::get(const QString &propertyName) const
+{
+    return property(propertyName.toStdString().c_str());
 }
 
 }
