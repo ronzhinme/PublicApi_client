@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/category)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/web_request)
 
 qt_add_executable(appPublicApi_client
     main.cpp
@@ -31,7 +32,9 @@ set_target_properties(appPublicApi_client PROPERTIES
 
 target_link_libraries(appPublicApi_client
     PRIVATE Qt6::Quick
-    category_model)
+    category_model
+    web_request
+)
 
 install(TARGETS appPublicApi_client
     BUNDLE DESTINATION .

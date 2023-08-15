@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 
 import category
+import web_request
 
 Window {
     width: 640
@@ -11,6 +12,23 @@ Window {
 
     CategoryTree {
         id: treeModel
+    }
+
+    WebRequest {
+        id: webRequest
+    }
+
+    Connections {
+        target: webRequest
+
+        function onSigRequestError(err, httpCode) {
+            console.log("======== Request error: ", err, httpCode)
+        }
+
+        function onSigRequestCompleted(reply) {
+            console.log("======== Request reply: ", reply)
+            //treeModel.fromJson(reply)
+        }
     }
 
     TreeView {
@@ -69,5 +87,10 @@ Window {
                 }
             }
         }
+    }
+
+    Component.onCompleted: {
+        webRequest.requestGetJson("https://api.publicapis.org/categories", "")
+        console.log("========")
     }
 }
