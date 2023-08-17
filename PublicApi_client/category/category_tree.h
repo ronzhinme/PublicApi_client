@@ -10,6 +10,9 @@ class CategoryTree : public DataModels::TreeModel
 public:
     CategoryTree(QObject *parent = nullptr);
     ~CategoryTree() = default;
+    Q_INVOKABLE void fromJson(const QByteArray &json);
+signals:
+    void sigFromJsonError(const QString &error);
 };
 
 #endif // CATEGORYTREE_H

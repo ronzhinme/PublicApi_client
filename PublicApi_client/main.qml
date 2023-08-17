@@ -27,7 +27,7 @@ Window {
 
         function onSigRequestCompleted(reply) {
             console.log("======== Request reply: ", reply)
-            //treeModel.fromJson(reply)
+            treeModel.fromJson(reply)
         }
     }
 
