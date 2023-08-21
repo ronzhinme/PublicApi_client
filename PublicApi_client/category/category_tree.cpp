@@ -8,7 +8,7 @@
 CategoryTree::CategoryTree(QObject *parent)
     : DataModels::TreeModel(parent)
 {
-    setHeaderNames({tr("Category"), tr("Extra Column")});
+    setHeaderNames({tr("Category")});
     setRoleNames(CategoryNode::roles());
     setFlags({Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable});
 }
@@ -39,19 +39,47 @@ void CategoryTree::fromJson(const QByteArray &json)
         return;
     }
 
-    const auto jCategories = jObj.value("categories");
-    if(!jCategories.isArray())
+    const auto jArr = jObj.value("categories");
+    if(!jArr.isArray())
     {
         return;
     }
 
-    for(const auto jCategory: jCategories.toArray())
+    const auto jCategories = jArr.toArray();
+    for(const auto jCategory: jCategories)
     {
         if(!jCategory.isString())
         {
             continue;
         }
 
-        insertNode(new CategoryNode(jCategory.toString(), root), root);
+        insertNode(new CategoryNode(jCategory.toString(), CategoryNode::CategoryType::Group, root), root);
+    }
+}
+
+void CategoryTree::entriesFromJson(const QString &url, const QByteArray &json)
+{
+    const QString categoryRequest = "category=";
+    const auto categoryNameIndex = url.indexOf(categoryRequest);
+    if(categoryNameIndex < 0 || json.isEmpty())
+    {
+        return;
+    }
+
+    auto root = getNode({});
+    if(!root)
+    {
+        return;
+    }
+
+    const auto categoryName = url.mid(categoryNameIndex + categoryRequest.size());
+    for(const auto child: root->getChildren())
+    {
+        auto node = static_cast<CategoryNode*>(child);
+        if(node && categoryName.startsWith(node->name()))
+        {
+            node->fromJson(json);
+            break;
+        }
     }
 }

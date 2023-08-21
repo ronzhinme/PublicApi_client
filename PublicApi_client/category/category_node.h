@@ -11,18 +11,33 @@ class CategoryNode : public DataModels::TreeNode
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(bool isEmpty READ isEmpty CONSTANT)
     Q_PROPERTY(QUrl icon READ icon CONSTANT)
+    Q_PROPERTY(int type READ type CONSTANT)
 public:
-    CategoryNode(QObject *parent = nullptr);
-    CategoryNode(const QString &name, QObject *parent = nullptr);
+    enum CategoryType
+    {
+        Group = 0,
+        Entry,
+    };
+
+    CategoryNode(CategoryType type = Group, QObject *parent = nullptr);
+    CategoryNode(const QString &name, CategoryType type = Group, QObject *parent = nullptr);
 
     enum Role
     {
         // roles by columns
         Name = Qt::UserRole + 1,
-        Extra,
+
         // all other roles
         IsEmpty,
         Icon,
+        Type,
+        Api,
+        Description,
+        Auth,
+        Https,
+        Cors,
+        Link,
+        Category,
     };
 
     static const QHash<int, QByteArray> roles();
@@ -30,10 +45,23 @@ public:
     void setName(const QString &val);
     bool isEmpty() const;
     QUrl icon() const;
+    CategoryType type() const;
+
+    void fromJson(const QByteArray &json);
+private:
+    void fromJsonEntry_(const QByteArray &json);
+    void setApi_(const QString& val);
+    void setDescription_(const QString& val);
+    void setAuth_(const QString& val);
+    void setHttps_(bool val);
+    void setCors_(const QString& val);
+    void setLink_(const QString& val);
+    void setCategory_(const QString& val);
 private slots:
     void onChildrenCountChanged_();
 signals:
     void sigNameChanged();
+    void sigFromJsonError(const QString &error);
 };
 
 #endif // CATEGORYNODE_H
