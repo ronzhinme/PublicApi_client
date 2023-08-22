@@ -13,5 +13,6 @@ qt_add_qml_module( category_model
         category_tree.cpp
     RESOURCES
         icons/folder.svg
+        icons/folder-fill.svg
         icons/file-earmark.svg
 )

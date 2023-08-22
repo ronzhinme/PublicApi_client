@@ -5,12 +5,10 @@ import web_request
 
 TreeView {
     id: tree
+    selectionModel: ItemSelectionModel{}
+
     function requestCategries() {
         webRequest.requestGetJson(webRequest.url_get_categories)
-    }
-
-    CategoryTree {
-        id: categoriesTreeModel
     }
 
     WebRequest {
@@ -24,11 +22,11 @@ TreeView {
         target: webRequest
 
         function onSigRequestError(url, err, httpCode) {
-            console.log("======== [", url,"] Request error: ", err, httpCode)
+            //console.log("======== [", url,"] Request error: ", err, httpCode)
         }
 
         function onSigRequestCompleted(url, reply) {
-            console.log("======== [", url, "] Request reply: ", reply)
+            //console.log("======== [", url, "] Request reply: ", reply)
 
             if(url.includes(webRequest.url_get_categories)){
                 categoriesTreeModel.fromJson(reply)
@@ -49,11 +47,14 @@ TreeView {
 
         TapHandler {
             onTapped: {
-                if(!isEmpty) toggleExpanded(index)
+                if(!isEmptyRole) toggleExpanded(index)
                 else {
-                    console.log(type)
-                    if(type === 0) {
-                        webRequest.requestGetJson(webRequest.url_get_category_entries + name)
+                    switch(typeRole)
+                    {
+                    case 0: webRequest.requestGetJson(webRequest.url_get_category_entries + nameRole)
+                        break
+                    case 1:
+                        break
                     }
                 }
             }
@@ -61,12 +62,14 @@ TreeView {
 
         Text {
             id: indicator
-            visible: !isEmpty
+            visible: !isEmptyRole
             anchors.verticalCenter: rowItem.verticalCenter
             text: "▸"
             font.pointSize: 14
             rotation: isExpanded(index) ? 90 : 0
         }
+
+
 
         Row {
             id: rowItem
@@ -75,19 +78,26 @@ TreeView {
             anchors.leftMargin: 5
             spacing: 5
 
-            Row {
-                id: categoryItem
-                spacing: 5
-                Image {
-                    id: image
-                    source: icon
-                    anchors.verticalCenter: parent.verticalCenter
+            Item {
+                Rectangle {
+                    color: tree.currentRow === index ? "skyblue" : "transparent"
+                    anchors.fill: categoryItem
                 }
 
-                Text {
-                    id: categoryName
-                    text: name
-                    anchors.verticalCenter: parent.verticalCenter
+                Row {
+                    id: categoryItem
+                    spacing: 5
+                    Image {
+                        id: image
+                        source: iconRole
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        id: categoryName
+                        text: nameRole
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
             }
         }

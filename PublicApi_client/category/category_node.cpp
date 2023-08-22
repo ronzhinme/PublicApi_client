@@ -8,7 +8,14 @@ CategoryNode::CategoryNode(CategoryType type, QObject *parent)
 {
     connect(this, &DataModels::TreeNode::sigChildrenCountChanged, this, &CategoryNode::onChildrenCountChanged_);
 
-    setName("");
+    const QString emptyString;
+    setName(emptyString);
+    setAuth(emptyString);
+    setCors(emptyString);
+    setDescription(emptyString);
+    setLink(emptyString);
+    setHttps(false);
+
     onChildrenCountChanged_();
     set(roles().value(Role::Type), type);
 }
@@ -19,6 +26,13 @@ CategoryNode::CategoryNode(const QString &name, CategoryType type, QObject *pare
     connect(this, &DataModels::TreeNode::sigChildrenCountChanged, this, &CategoryNode::onChildrenCountChanged_);
 
     setName(name);
+
+    const QString emptyString;
+    setAuth(emptyString);
+    setCors(emptyString);
+    setDescription(emptyString);
+    setLink(emptyString);
+
     onChildrenCountChanged_();
     set(roles().value(Role::Type), type);
 }
@@ -27,30 +41,35 @@ const QHash<int, QByteArray> CategoryNode::roles()
 {
     static const QHash<int, QByteArray> hash
     {
-        {CategoryNode::Role::Name, "name"},
-        {CategoryNode::Role::IsEmpty, "isEmpty"},
-        {CategoryNode::Role::Icon, "icon"},
-        {CategoryNode::Role::Type, "type"},
-        {CategoryNode::Role::Api, "api"},
-        {CategoryNode::Role::Description, "description"},
-        {CategoryNode::Role::Auth, "auth"},
-        {CategoryNode::Role::Https, "https"},
-        {CategoryNode::Role::Cors, "cors"},
-        {CategoryNode::Role::Link, "link"},
-        {CategoryNode::Role::Category, "category"},
+        {CategoryNode::Role::Name, "nameRole"},
+        {CategoryNode::Role::IsEmpty, "isEmptyRole"},
+        {CategoryNode::Role::Icon, "iconRole"},
+        {CategoryNode::Role::Type, "typeRole"},
+        {CategoryNode::Role::Description, "descriptionRole"},
+        {CategoryNode::Role::Auth, "authRole"},
+        {CategoryNode::Role::Https, "httpsRole"},
+        {CategoryNode::Role::Cors, "corsRole"},
+        {CategoryNode::Role::Link, "linkRole"},
     };
 
     return hash;
 }
 
-QString CategoryNode::name() const
+QString CategoryNode::getName() const
 {
     return get(roles().value(Role::Name)).toString();
 }
 
+QString CategoryNode::getDescription() const
+{
+    return get(roles().value(Role::Description)).toString();
+}
+
 void CategoryNode::setName(const QString &val)
 {
-    set(roles().value(Role::Name), val);
+    const auto propName = roles().value(Role::Name);
+    set(propName, val);
+    emit sigPropertyChanged(propName, val);
 }
 
 bool CategoryNode::isEmpty() const
@@ -71,58 +90,11 @@ CategoryNode::CategoryType CategoryNode::type() const
 void CategoryNode::fromJson(const QByteArray &json)
 {
     clear();
-
     QJsonParseError jErr;
     const auto jDoc = QJsonDocument::fromJson(json, &jErr);
 
     if(jErr.error != QJsonParseError::NoError)
     {
-        //emit sigFromJsonError(jErr.errorString());
-        return;
-    }
-
-    if(jDoc.isNull() || !jDoc.isObject())
-    {
-        return;
-    }
-
-    const auto jObj = jDoc.object();
-    const auto count = jObj.value("count").toInt(0);
-    if(count == 0)
-    {
-        return;
-    }
-
-    const auto jNodes = jObj.value("entries");
-    if(!jNodes.isArray())
-    {
-        return;
-    }
-
-    const auto jNodesArr = jNodes.toArray();
-    for(const auto jNode: jNodesArr)
-    {
-        if(!jNode.isObject())
-        {
-            continue;
-        }
-
-        const auto jNodeObj = jNode.toObject();
-        auto node = new CategoryNode(CategoryType::Entry, this);
-        node->fromJsonEntry_(QJsonDocument(jNodeObj).toJson(QJsonDocument::JsonFormat::Compact));
-        insert(node);
-    }
-}
-
-void CategoryNode::fromJsonEntry_(const QByteArray &json)
-{
-    clear();
-    QJsonParseError jErr;
-    const auto jDoc = QJsonDocument::fromJson(json, &jErr);
-
-    if(jErr.error != QJsonParseError::NoError)
-    {
-        //emit sigFromJsonError(jErr.errorString());
         return;
     }
 
@@ -141,79 +113,95 @@ void CategoryNode::fromJsonEntry_(const QByteArray &json)
     const auto jDescription = jObj.value("Description");
     if(!jDescription.isNull() && jDescription.isString())
     {
-        setDescription_(jDescription.toString());
+        setDescription(jDescription.toString());
     }
 
     const auto jAuth = jObj.value("Auth");
     if(!jAuth.isNull() && jAuth.isString())
     {
-        setAuth_(jAuth.toString());
+        setAuth(jAuth.toString());
     }
 
     const auto jHttps = jObj.value("HTTPS");
     if(!jHttps.isNull() && jHttps.isBool())
     {
-        setHttps_(jHttps.toBool());
+        setHttps(jHttps.toBool());
     }
 
     const auto jCors = jObj.value("Cors");
     if(!jCors.isNull() && jCors.isString())
     {
-        setCors_(jCors.toString());
+        setCors(jCors.toString());
     }
 
     const auto jLink = jObj.value("Link");
     if(!jLink.isNull() && jLink.isString())
     {
-        setLink_(jLink.toString());
-    }
-
-    const auto jCategory = jObj.value("Category");
-    if(!jCategory.isNull() && jCategory.isString())
-    {
-        setCategory_(jCategory.toString());
+        setLink(jLink.toString());
     }
 }
 
-void CategoryNode::setApi_(const QString &val)
+void CategoryNode::setDescription(const QString &val)
 {
-    set(roles().value(Role::Api), val);
+    const auto propName = roles().value(Role::Description);
+    set(propName, val);
+    emit sigPropertyChanged(propName, val);
 }
 
-void CategoryNode::setDescription_(const QString &val)
+QString CategoryNode::getAuth() const
 {
-    set(roles().value(Role::Description), val);
+    return get(roles().value(Role::Auth)).toString();
 }
 
-void CategoryNode::setAuth_(const QString &val)
+void CategoryNode::setAuth(const QString &val)
 {
-    set(roles().value(Role::Auth), val);
+    const auto propName = roles().value(Role::Auth);
+    set(propName, val);
+    emit sigPropertyChanged(propName, val);
 }
 
-void CategoryNode::setHttps_(bool val)
+bool CategoryNode::getHttps() const
 {
-    set(roles().value(Role::Https), val);
+    return get(roles().value(Role::Https)).toBool();
 }
 
-void CategoryNode::setCors_(const QString &val)
+void CategoryNode::setHttps(bool val)
 {
-    set(roles().value(Role::Cors), val);
+    const auto propName = roles().value(Role::Https);
+    set(propName, val);
+    emit sigPropertyChanged(propName, val);
 }
 
-void CategoryNode::setLink_(const QString &val)
+QString CategoryNode::getCors() const
 {
-    set(roles().value(Role::Link), val);
+    return get(roles().value(Role::Cors)).toString();
 }
 
-void CategoryNode::setCategory_(const QString &val)
+void CategoryNode::setCors(const QString &val)
 {
-    set(roles().value(Role::Category), val);
+    const auto propName = roles().value(Role::Cors);
+    set(propName, val);
+    emit sigPropertyChanged(propName, val);
+}
+
+QString CategoryNode::getLink() const
+{
+    return get(roles().value(Role::Link)).toString();
+}
+
+void CategoryNode::setLink(const QString &val)
+{
+    const auto propName = roles().value(Role::Link);
+    set(propName, val);
+    emit sigPropertyChanged(propName, val);
 }
 
 void CategoryNode::onChildrenCountChanged_()
 {
-    set(roles().value(Role::IsEmpty), getChildren().isEmpty());
-    set(roles().value(Role::Icon), getChildren().isEmpty()
-        ? QUrl("qrc:/category/icons/file-earmark.svg")
-        : QUrl("qrc:/category/icons/folder.svg"));
+    const auto isEmpty = getChildren().isEmpty();
+    const auto isGroup = get(roles().value(Role::Type)).toInt() == CategoryNode::CategoryType::Group;
+    set(roles().value(Role::IsEmpty), isEmpty);
+    set(roles().value(Role::Icon), isGroup
+        ? (isEmpty ? QUrl("qrc:/category/icons/folder.svg") : QUrl("qrc:/category/icons/folder-fill.svg"))
+        : QUrl("qrc:/category/icons/file-earmark.svg"));
 }

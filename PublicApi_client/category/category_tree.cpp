@@ -76,10 +76,55 @@ void CategoryTree::entriesFromJson(const QString &url, const QByteArray &json)
     for(const auto child: root->getChildren())
     {
         auto node = static_cast<CategoryNode*>(child);
-        if(node && categoryName.startsWith(node->name()))
+        if(node && categoryName.startsWith(node->getName()))
         {
-            node->fromJson(json);
-            break;
+            node->clear();
+            emit sigChildrenCountChanged(getIndexByNode_(node), node->getChildren().count(), false);
+
+            QJsonParseError jErr;
+            const auto jDoc = QJsonDocument::fromJson(json, &jErr);
+            if(jErr.error != QJsonParseError::NoError)
+            {
+                emit sigFromJsonError(jErr.errorString());
+                return;
+            }
+
+            if(jDoc.isNull() || !jDoc.isObject())
+            {
+                return;
+            }
+
+            const auto jObj = jDoc.object();
+            const auto count = jObj.value("count").toInt(0);
+            if(count == 0)
+            {
+                return;
+            }
+
+            const auto jEntries = jObj.value("entries");
+            if(!jEntries.isArray())
+            {
+                return;
+            }
+
+            const auto jEntriesArr = jEntries.toArray();
+            for(const auto jEntry: jEntriesArr)
+            {
+                if(!jEntry.isObject())
+                {
+                    continue;
+                }
+
+                const auto jEntryObj = jEntry.toObject();
+                auto entry = new CategoryNode(CategoryNode::CategoryType::Entry, node);
+                entry->fromJson(QJsonDocument(jEntryObj).toJson(QJsonDocument::JsonFormat::Compact));
+                insertNode(entry, node);
+
+                const auto index = getIndexByNode_(node);
+                emit dataChanged(index, index);
+            }
+
+            return;
         }
     }
 }

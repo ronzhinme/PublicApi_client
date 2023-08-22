@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
+import category
+
 Window {
     width: 640
     height: 480
@@ -30,13 +32,29 @@ Window {
 
         Navigator {
             id: navigator
+            model: CategoryTree {
+                id: categoriesTreeModel
+            }
+
             SplitView.minimumWidth: 100
             SplitView.preferredWidth: 200
             SplitView.maximumWidth: 300
         }
 
-        Rectangle {
-            color: "red"
+        Item {
+            id: rightPanel
+            readonly property var selectedCategoryNode: Object.assign(categoriesTreeModel.getNode(navigator.selectionModel.currentIndex))
+            Column {
+                Text {
+                    text: rightPanel.selectedCategoryNode.name
+                }
+                Text {
+                    text: rightPanel.selectedCategoryNode.link
+                }
+                Text {
+                    text: rightPanel.selectedCategoryNode.description
+                }
+            }
         }
     }
 }
