@@ -7,33 +7,62 @@
 
 class CategoryNode : public DataModels::TreeNode
 {
+    Q_OBJECT
     QML_ELEMENT
-    Q_PROPERTY(QString name READ name WRITE setName)
-    Q_PROPERTY(bool isEmpty READ isEmpty CONSTANT)
-    Q_PROPERTY(QUrl icon READ icon CONSTANT)
+    Q_PROPERTY(QString name READ getName CONSTANT)
+    Q_PROPERTY(QString description READ getDescription CONSTANT)
+    Q_PROPERTY(QString auth READ getAuth CONSTANT)
+    Q_PROPERTY(bool https READ getHttps CONSTANT)
+    Q_PROPERTY(QString cors READ getCors CONSTANT)
+    Q_PROPERTY(QString link READ getLink CONSTANT)
 public:
-    CategoryNode(QObject *parent = nullptr);
-    CategoryNode(const QString &name, QObject *parent = nullptr);
-
+    enum CategoryType
+    {
+        Group = 0,
+        Entry,
+    };
     enum Role
     {
         // roles by columns
         Name = Qt::UserRole + 1,
-        Extra,
+
         // all other roles
         IsEmpty,
         Icon,
+        Type,
+        Description,
+        Auth,
+        Https,
+        Cors,
+        Link,
     };
-
     static const QHash<int, QByteArray> roles();
-    QString name() const;
+
+    CategoryNode(CategoryType type = Group, QObject *parent = nullptr);
+    CategoryNode(const QString &name, CategoryType type = Group, QObject *parent = nullptr);
+
+    QString getName() const;
     void setName(const QString &val);
+    QString getDescription() const;
+    void setDescription(const QString& val);
+    QString getAuth() const;
+    void setAuth(const QString& val);
+    bool getHttps() const;
+    void setHttps(bool val);
+    QString getCors() const;
+    void setCors(const QString& val);
+    QString getLink() const;
+    void setLink(const QString& val);
+
     bool isEmpty() const;
     QUrl icon() const;
+    CategoryType type() const;
+
+    void fromJson(const QByteArray &json);
 private slots:
     void onChildrenCountChanged_();
 signals:
-    void sigNameChanged();
+    void sigPropertiesChanged();
 };
 
 #endif // CATEGORYNODE_H

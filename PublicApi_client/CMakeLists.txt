@@ -20,6 +20,7 @@ qt_add_qml_module(appPublicApi_client
     VERSION 1.0
     QML_FILES
         main.qml
+        Navigator.qml
 )
 
 set_target_properties(appPublicApi_client PROPERTIES

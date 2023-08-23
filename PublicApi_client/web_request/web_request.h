@@ -12,12 +12,12 @@ class WebRequest : public QObject
 public:
     WebRequest(QObject *parent = nullptr);
     ~WebRequest() = default;
-    Q_INVOKABLE void requestGetJson(const QString &url, const QByteArray &data);
+    Q_INVOKABLE void requestGetJson(const QString &url);
 private:
     QScopedPointer<QNetworkAccessManager> manager_;
 signals:
-    void sigRequestError(QNetworkReply::NetworkError err, int httpCode);
-    void sigRequestCompleted(const QByteArray &reply);
+    void sigRequestError(const QString &url, QNetworkReply::NetworkError err, int httpCode);
+    void sigRequestCompleted(const QString &url, const QByteArray &reply);
 };
 
 #endif // CATEGORYTREE_H
