@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Quick WebEngineQuick)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/category)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/web_request)
@@ -17,6 +17,7 @@ qt_add_executable(appPublicApi_client
 
 qt_add_qml_module(appPublicApi_client
     URI PublicApi_client
+    RESOURCE_PREFIX "/"
     VERSION 1.0
     QML_FILES
         main.qml
@@ -32,7 +33,7 @@ set_target_properties(appPublicApi_client PROPERTIES
 )
 
 target_link_libraries(appPublicApi_client
-    PRIVATE Qt6::Quick
+    PRIVATE Qt::Quick Qt::WebEngineQuick
     category_model
     web_request
 )

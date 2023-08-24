@@ -1,5 +1,7 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
+import QtWebView
 
 import category
 
@@ -41,19 +43,45 @@ Window {
             SplitView.maximumWidth: 300
         }
 
-        Item {
+        ColumnLayout {
             id: rightPanel
             readonly property var selectedCategoryNode: Object.assign(categoriesTreeModel.getNode(navigator.selectionModel.currentIndex))
-            Column {
-                Text {
-                    text: rightPanel.selectedCategoryNode.name
+
+            Text {
+                id: nameText
+                text: rightPanel.selectedCategoryNode.name
+            }
+            Text {
+                id: linkText
+                text: rightPanel.selectedCategoryNode.link
+            }
+            Text {
+                id: descText
+                text: rightPanel.selectedCategoryNode.description
+            }
+            Button {
+                visible: linkText.text.length > 0
+                text: qsTr("Run")
+                onClicked: {
+                    webView.url = linkText.text
                 }
-                Text {
-                    text: rightPanel.selectedCategoryNode.link
-                }
-                Text {
-                    text: rightPanel.selectedCategoryNode.description
-                }
+            }
+
+            onSelectedCategoryNodeChanged: {
+                webView.url = "about:blank"
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: "gray"
+            }
+
+            WebView {
+                id: webView
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+
             }
         }
     }

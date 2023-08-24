@@ -1,6 +1,7 @@
 
 qt_add_qml_module( category_model
     URI category
+    RESOURCE_PREFIX "/"
     VERSION 1.0
     SOURCES
         ../models/tree/tree_node.h
